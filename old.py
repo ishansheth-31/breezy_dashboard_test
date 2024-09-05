@@ -58,9 +58,7 @@ def get_appointment_status(appointment_date_str):
 # Helper function to get upload status from reports
 def get_upload_status(patient_uuid):
     report = reports_collection.find_one({"patient_uuid": patient_uuid})
-    if report:
-        return "Complete" if report["upload_status"] == "complete" else "Incomplete"
-    return "N/A"
+    return "Complete" if report["upload_status"] == "complete" else "Incomplete"
 
 # Twilio message builder
 def string_builder(patient_name, date, link):
@@ -155,7 +153,7 @@ if selected_patient_id:
         appointment_status, status_color = get_appointment_status(recent_appointment['scheduled_date'])
 
         # Get Messages Sent from counter field (or N/A if not present)
-        messages_sent = recent_appointment.get("counter", "N/A")
+        messages_sent = 6 - recent_appointment.get("counter", "N/A")
 
         # Get upload status from reports collection by matching patient_uuid
         upload_status = get_upload_status(recent_appointment.get("uuid", ""))
