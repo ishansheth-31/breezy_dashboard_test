@@ -137,13 +137,18 @@ for appointment in upcoming_appointments:
     formatted_date = format_date(appointment['scheduled_date'])
     appointment_type = appointment["reason"]
     
-    # Display the patient info as a static card (formatted text)
+    # Display the patient info as a static card with customized font size and line breaks
     st.sidebar.markdown(
-        f"**Patient:** {patient_name}\n"
-        f"**Appointment Type:** {appointment_type}\n"
-        f"**Date/Time:** {formatted_date}\n"
-        "---"
+        f"""
+        <div style="font-size:14px; line-height:1.6; margin-bottom: 20px;">
+            <strong>Patient:</strong> {patient_name}<br>
+            <strong>Appointment Type:</strong> {appointment_type}<br>
+            <strong>Visit Date:</strong> {formatted_date}
+        </div>
+        """, unsafe_allow_html=True
     )
+
+
 
 # If a patient is selected, fetch and display their detailed information
 if selected_patient_id:
