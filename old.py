@@ -4,11 +4,12 @@ from datetime import datetime
 import pytz
 import re
 from twilio.rest import Client
+import os
 
 # Twilio configuration
-twilio_account_sid = ""
-twilio_auth_token = ""
-twilio_sender_phone_number = ""
+twilio_account_sid = os.getenv("ACCOUNT_SID")
+twilio_auth_token = os.getenv("ACCOUNT_AUTH")
+twilio_sender_phone_number = os.getenv("ACCOUNT_NUMBER")
 twilio_client = Client(twilio_account_sid, twilio_auth_token)
 
 # MongoDB connection URI
