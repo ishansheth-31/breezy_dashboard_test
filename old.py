@@ -1,6 +1,6 @@
 import streamlit as st
 import pymongo
-from datetime import datetime, timedelta  # Ensure timedelta is imported
+from datetime import datetime, timedelta
 import pytz
 import re
 from twilio.rest import Client
@@ -115,7 +115,7 @@ for patient in all_patients:
     for appointment in appointments:
         status, _, appointment_time = get_appointment_status(appointment["scheduled_date"])
         if status == "Upcoming":
-            option_text = f"{patient['first_name']} {patient['last_name']} - {status}"
+            option_text = f"{patient['first_name']} {patient['last_name']} - {status} - {appointment_time}"
         else:
             option_text = f"{patient['first_name']} {patient['last_name']} - {status}"
         patient_options.append(option_text)
@@ -123,6 +123,27 @@ for patient in all_patients:
 
 selected_patient_name = st.sidebar.selectbox("Select a Patient", options=patient_options)
 selected_patient_id = patient_data.get(selected_patient_name)
+
+# Sidebar - List of Upcoming Patients (Static text cards for the 10 most upcoming patients)
+st.sidebar.title("Upcoming Patients")
+upcoming_appointments = appointments_collection.find({
+    "scheduled_date": {"$gt": current_time.isoformat()},
+}).sort("scheduled_date", pymongo.ASCENDING).limit(10)
+
+for appointment in upcoming_appointments:
+    patient_id = appointment["patient"]
+    patient = patients_collection.find_one({"id": patient_id}, {"first_name": 1, "last_name": 1, "_id": 0})
+    patient_name = f"{patient['first_name']} {patient['last_name']}"
+    formatted_date = format_date(appointment['scheduled_date'])
+    appointment_type = appointment["reason"]
+    
+    # Display the patient info as a static card (formatted text)
+    st.sidebar.markdown(
+        f"**Patient:** {patient_name}\n"
+        f"**Appointment Type:** {appointment_type}\n"
+        f"**Date/Time:** {formatted_date}\n"
+        "---"
+    )
 
 # If a patient is selected, fetch and display their detailed information
 if selected_patient_id:
