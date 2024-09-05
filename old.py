@@ -42,8 +42,8 @@ def format_phone_number(phone):
 # Helper function to determine if an appointment is upcoming or past
 def get_appointment_status(appointment_date_str):
     utc_appointment_date = datetime.fromisoformat(appointment_date_str.replace("Z", "+00:00"))
-    appointment_date_est = utc_appointment_date.astimezone(est)
-    current_time_est = datetime.now(est)
+    appointment_date_est = utc_appointment_date
+    current_time_est = datetime.now()
     if appointment_date_est > current_time_est:
         return "Upcoming", "green"
     else:
