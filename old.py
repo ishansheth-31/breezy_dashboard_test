@@ -97,12 +97,16 @@ def increment_test_message_counter(appointment_id):
         {"$inc": {"test_message_counter": 1}}
     )
 
+# Initialize session state for selected_patient_id if it doesn't exist
+if 'selected_patient_id' not in st.session_state:
+    st.session_state.selected_patient_id = None
+
 # Title
 st.title("Breezy Medical Dashboard")
 
 # Sidebar - Add Home Button above search
 if st.sidebar.button("🏠 Home"):
-    selected_patient_id = None
+    st.session_state.selected_patient_id = None
 
 # Sidebar - Searchable dropdown for patients
 st.sidebar.title("Search Patient")
@@ -110,7 +114,10 @@ all_patients = list(patients_collection.find({}, {"first_name": 1, "last_name": 
 patient_options = [f"{patient['first_name']} {patient['last_name']}" for patient in all_patients]
 patient_data = {f"{patient['first_name']} {patient['last_name']}": patient['id'] for patient in all_patients}
 selected_patient_name = st.sidebar.selectbox("Select a Patient", options=patient_options)
-selected_patient_id = patient_data.get(selected_patient_name)
+
+# Update selected patient ID in session state when patient is selected from dropdown
+if selected_patient_name:
+    st.session_state.selected_patient_id = patient_data.get(selected_patient_name)
 
 # Fetch 10 most recent upcoming appointments after the current time (EST)
 upcoming_appointments = appointments_collection.find({
@@ -125,11 +132,12 @@ for appointment in upcoming_appointments:
     patient_name = f"{patient['first_name']} {patient['last_name']}"
     formatted_date = format_date(appointment['scheduled_date'])
     if st.sidebar.button(f"{patient_name} - {formatted_date}"):
-        selected_patient_id = patient_id
+        # Update selected patient ID in session state when patient is clicked from upcoming list
+        st.session_state.selected_patient_id = patient_id
 
 # If a patient is selected, fetch and display their detailed information
-if selected_patient_id:
-    patient_info = patients_collection.find_one({"id": selected_patient_id}, {"first_name": 1, "last_name": 1, "phones": 1, "_id": 0})
+if st.session_state.selected_patient_id:
+    patient_info = patients_collection.find_one({"id": st.session_state.selected_patient_id}, {"first_name": 1, "last_name": 1, "phones": 1, "_id": 0})
     if patient_info.get('phones') and len(patient_info['phones']) > 0:
         formatted_phone = format_phone_number(patient_info['phones'][0]['phone'])
         phone_link = f"tel:{formatted_phone.replace('-', '')}"
@@ -140,7 +148,7 @@ if selected_patient_id:
     st.header(f"Details for {patient_info['first_name']} {patient_info['last_name']}")
 
     # Fetch their most recent appointment
-    recent_appointment = appointments_collection.find_one({"patient": selected_patient_id}, sort=[("scheduled_date", pymongo.DESCENDING)])
+    recent_appointment = appointments_collection.find_one({"patient": st.session_state.selected_patient_id}, sort=[("scheduled_date", pymongo.DESCENDING)])
     if recent_appointment:
         formatted_date = format_date(recent_appointment['scheduled_date'])
         appointment_status, status_color = get_appointment_status(recent_appointment['scheduled_date'])
