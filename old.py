@@ -124,7 +124,7 @@ upcoming_appointments = appointments_collection.find({
     "scheduled_date": {"$gt": current_time.isoformat()},
 }).sort("scheduled_date", pymongo.ASCENDING).limit(10)
 
-# Initialize session state for selected_patient_id and selection_source if not already present
+# Initialize session state for selected_patient_id and selection source if not already present
 if 'selected_patient_id' not in st.session_state:
     st.session_state.selected_patient_id = None
 if 'selection_source' not in st.session_state:
@@ -148,9 +148,7 @@ st.sidebar.title("Search Patient")
 all_patients = list(patients_collection.find({}, {"first_name": 1, "last_name": 1, "id": 1, "_id": 0}))
 patient_options = [f"{patient['first_name']} {patient['last_name']}" for patient in all_patients]
 patient_data = {f"{patient['first_name']} {patient['last_name']}": patient['id'] for patient in all_patients}
-
-# Add a unique key to the st.selectbox to avoid DuplicateWidgetID error
-selected_patient_name = st.sidebar.selectbox("Select a Patient", options=patient_options, key="search_patient_selectbox")
+selected_patient_name = st.sidebar.selectbox("Select a Patient", options=patient_options)
 
 # If a patient is selected from the search bar, update the session state and source only if the sidebar hasn't been clicked
 if selected_patient_name:
