@@ -118,32 +118,17 @@ upcoming_appointments = appointments_collection.find({
 
 # Sidebar - List of Upcoming Patients
 st.sidebar.title("Upcoming Patients")
-
-# Initialize session state for selected_patient_id if not already present
-if 'selected_patient_id' not in st.session_state:
-    st.session_state.selected_patient_id = None
-
 for appointment in upcoming_appointments:
     patient_id = appointment["patient"]
     patient = patients_collection.find_one({"id": patient_id}, {"first_name": 1, "last_name": 1, "_id": 0})
     patient_name = f"{patient['first_name']} {patient['last_name']}"
     formatted_date = format_date(appointment['scheduled_date'])
-
-    # Set session state to hold the selected patient
     if st.sidebar.button(f"{patient_name} - {formatted_date}"):
-        st.session_state.selected_patient_id = patient_id
-
-# If a patient is selected from the search bar or upcoming patients, set the selected_patient_id
-if selected_patient_name:
-    st.session_state.selected_patient_id = patient_data.get(selected_patient_name)
-
-# Fetch the selected patient details from session state
-selected_patient_id = st.session_state.selected_patient_id
+        selected_patient_id = patient_id
 
 # If a patient is selected, fetch and display their detailed information
 if selected_patient_id:
     patient_info = patients_collection.find_one({"id": selected_patient_id}, {"first_name": 1, "last_name": 1, "phones": 1, "_id": 0})
-
     if patient_info.get('phones') and len(patient_info['phones']) > 0:
         formatted_phone = format_phone_number(patient_info['phones'][0]['phone'])
         phone_link = f"tel:{formatted_phone.replace('-', '')}"
