@@ -140,7 +140,7 @@ for appointment in upcoming_appointments:
     # Display the patient info as a static card with customized font size and line breaks
     st.sidebar.markdown(
         f"""
-        <div style="font-size:14px; line-height:1.6; margin-bottom: 20px;">
+        <div style="font-size:16px; line-height:1.6; margin-bottom: 20px;">
             <strong>Patient:</strong> {patient_name}<br>
             <strong>Appointment Type:</strong> {appointment_type}<br>
             <strong>Visit Date:</strong> {formatted_date}
