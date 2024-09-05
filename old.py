@@ -41,11 +41,15 @@ def format_phone_number(phone):
 
 # Helper function to determine if an appointment is upcoming or past
 def get_appointment_status(appointment_date_str):
-    # Parse the appointment date from ISO format (assumed to be in EST already)
-    est_appointment_date = datetime.fromisoformat(appointment_date_str)
+    # Parse the appointment date from ISO format (in UTC, indicated by +00:00)
+    utc_appointment_date = datetime.fromisoformat(appointment_date_str)
     
-    # Ensure the current time is in EST
+    # Convert the UTC appointment time to EST
+    est_appointment_date = utc_appointment_date.astimezone(pytz.timezone('US/Eastern'))
+    
+    # Get the current time in EST
     current_time_est = datetime.now(pytz.timezone('US/Eastern'))
+    
     st.write("Appointment Date (EST):", est_appointment_date)
     st.write("Current Time (EST):", current_time_est)
     
