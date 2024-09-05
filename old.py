@@ -169,7 +169,7 @@ if selected_patient_id:
         st.markdown(f"**Assessment Status:** {upload_status}")
 
         # Button to send follow-up text (only if appointment is upcoming)
-        if appointment_status == "Past":
+        if appointment_status == "Upcoming":
             if st.button(f"Send Follow-Up Text to {patient_info['first_name']}"):
                 result = send_message(
                     patient_name=patient_info['first_name'],
