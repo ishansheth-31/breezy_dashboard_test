@@ -140,7 +140,7 @@ if selected_patient_id:
     recent_appointment = appointments_collection.find_one({"patient": selected_patient_id}, sort=[("scheduled_date", pymongo.DESCENDING)])
     if recent_appointment:
         formatted_date = format_date(recent_appointment['scheduled_date'])
-        appointment_status, status_color = get_appointment_status(recent_appointment['scheduled_date'])
+        appointment_status, status_color, date = get_appointment_status(recent_appointment['scheduled_date'])
         
         # Get the counters and total messages sent
         original_counter = recent_appointment.get("counter", 5)
