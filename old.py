@@ -108,8 +108,16 @@ st.sidebar.title("Search Patient")
 all_patients = list(patients_collection.find({}, {"first_name": 1, "last_name": 1, "id": 1, "_id": 0}))
 patient_options = [f"{patient['first_name']} {patient['last_name']}" for patient in all_patients]
 patient_data = {f"{patient['first_name']} {patient['last_name']}": patient['id'] for patient in all_patients}
-selected_patient_name = st.sidebar.selectbox("Select a Patient", options=patient_options)
-selected_patient_id = patient_data.get(selected_patient_name)
+
+# Add a unique key to the st.selectbox to avoid DuplicateWidgetID error
+selected_patient_name = st.sidebar.selectbox("Select a Patient", options=patient_options, key="search_patient_selectbox")
+
+# If a patient is selected from the search bar, update the session state and source only if the sidebar hasn't been clicked
+if selected_patient_name:
+    if st.session_state.selection_source != "sidebar":
+        st.session_state.selected_patient_id = patient_data.get(selected_patient_name)
+        st.session_state.selection_source = "search_bar"  # Mark the selection source as 'search bar'
+
 
 # Fetch 10 most recent upcoming appointments after the current time (EST)
 upcoming_appointments = appointments_collection.find({
