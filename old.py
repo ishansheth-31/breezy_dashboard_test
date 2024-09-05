@@ -58,7 +58,10 @@ def get_appointment_status(appointment_date_str):
 # Helper function to get upload status from reports
 def get_upload_status(patient_uuid):
     report = reports_collection.find_one({"patient_uuid": patient_uuid})
-    return "Complete" if report["upload_status"] == "complete" else "Incomplete"
+    if report:
+        return "Complete" if report["upload_status"] == "complete" else "Incomplete"
+    else:
+        return "Incomplete"
 
 # Twilio message builder
 def string_builder(patient_name, date, link):
