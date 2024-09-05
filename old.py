@@ -6,9 +6,9 @@ import re
 from twilio.rest import Client
 
 # Twilio configuration
-twilio_account_sid = "AC550489d0cf20897e81015e172989a7e9"
-twilio_auth_token = "3ed1d3a06415a13a214f9f6f11be933f"
-twilio_sender_phone_number = "+18778425481"
+twilio_account_sid = ""
+twilio_auth_token = ""
+twilio_sender_phone_number = ""
 twilio_client = Client(twilio_account_sid, twilio_auth_token)
 
 # MongoDB connection URI
