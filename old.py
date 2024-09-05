@@ -116,28 +116,39 @@ upcoming_appointments = appointments_collection.find({
     "scheduled_date": {"$gt": current_time.isoformat()},
 }).sort("scheduled_date", pymongo.ASCENDING).limit(10)
 
-# Sidebar - List of Upcoming Patients
-st.sidebar.title("Upcoming Patients")
-
-# Initialize session state for selected_patient_id if not already present
+# Initialize session state for selected_patient_id and selection source if not already present
 if 'selected_patient_id' not in st.session_state:
     st.session_state.selected_patient_id = None
+if 'selection_source' not in st.session_state:
+    st.session_state.selection_source = None  # Track the source of the selection
 
+# Sidebar - List of Upcoming Patients
+st.sidebar.title("Upcoming Patients")
 for appointment in upcoming_appointments:
     patient_id = appointment["patient"]
     patient = patients_collection.find_one({"id": patient_id}, {"first_name": 1, "last_name": 1, "_id": 0})
     patient_name = f"{patient['first_name']} {patient['last_name']}"
     formatted_date = format_date(appointment['scheduled_date'])
 
-    # Set session state to hold the selected patient
+    # Set session state to hold the selected patient from sidebar, and update the source
     if st.sidebar.button(f"{patient_name} - {formatted_date}"):
         st.session_state.selected_patient_id = patient_id
+        st.session_state.selection_source = "sidebar"  # Mark the selection source as 'sidebar'
 
-# If a patient is selected from the search bar or upcoming patients, set the selected_patient_id
+# Sidebar - Searchable dropdown for patients
+st.sidebar.title("Search Patient")
+all_patients = list(patients_collection.find({}, {"first_name": 1, "last_name": 1, "id": 1, "_id": 0}))
+patient_options = [f"{patient['first_name']} {patient['last_name']}" for patient in all_patients]
+patient_data = {f"{patient['first_name']} {patient['last_name']}": patient['id'] for patient in all_patients}
+selected_patient_name = st.sidebar.selectbox("Select a Patient", options=patient_options)
+
+# If a patient is selected from the search bar, update the session state and source only if the sidebar hasn't been clicked
 if selected_patient_name:
-    st.session_state.selected_patient_id = patient_data.get(selected_patient_name)
+    if st.session_state.selection_source != "sidebar":
+        st.session_state.selected_patient_id = patient_data.get(selected_patient_name)
+        st.session_state.selection_source = "search_bar"  # Mark the selection source as 'search bar'
 
-# Fetch the selected patient details from session state
+# Fetch the selected patient ID from session state
 selected_patient_id = st.session_state.selected_patient_id
 
 # If a patient is selected, fetch and display their detailed information
@@ -158,7 +169,7 @@ if selected_patient_id:
     if recent_appointment:
         formatted_date = format_date(recent_appointment['scheduled_date'])
         appointment_status, status_color = get_appointment_status(recent_appointment['scheduled_date'])
-        
+
         # Get the counters and total messages sent
         original_counter = recent_appointment.get("counter", 5)
         test_message_counter = recent_appointment.get("test_message_counter", 0)
