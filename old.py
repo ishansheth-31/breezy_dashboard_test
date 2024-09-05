@@ -115,7 +115,7 @@ for patient in all_patients:
     for appointment in appointments:
         status, _, appointment_time = get_appointment_status(appointment["scheduled_date"])
         if status == "Upcoming":
-            option_text = f"{patient['first_name']} {patient['last_name']} - {status} - {appointment_time}"
+            option_text = f"{patient['first_name']} {patient['last_name']} - {status}"
         else:
             option_text = f"{patient['first_name']} {patient['last_name']} - {status}"
         patient_options.append(option_text)
