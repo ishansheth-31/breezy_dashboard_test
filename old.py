@@ -1,5 +1,5 @@
 import streamlit as st
-from pymongo import MongoClient
+import pymongo
 from datetime import datetime
 import pytz
 import re
@@ -13,7 +13,7 @@ twilio_sender_phone_number = os.getenv("ACCOUNT_NUMBER")
 twilio_client = Client(twilio_account_sid, twilio_auth_token)
 
 # MongoDB connection URI
-client = MongoClient("mongodb+srv://ishansheth31:Kevi5han1234@breezytest1.saw2kxe.mongodb.net/")
+client = pymongo.MongoClient("mongodb+srv://ishansheth31:Kevi5han1234@breezytest1.saw2kxe.mongodb.net/")
 
 # Select your database
 db = client["primecareofga"]
