@@ -45,7 +45,7 @@ def get_appointment_status(appointment_date_str):
     est_appointment_date = datetime.fromisoformat(appointment_date_str)
     
     # Ensure the current time is in EST
-    current_time_est = datetime.now().timedelta(hours=4).pytz.timezone('US/Eastern')
+    current_time_est = datetime.now(pytz.timezone('US/Eastern'))
     st.write("Appointment Date (EST):", est_appointment_date)
     st.write("Current Time (EST):", current_time_est)
     
