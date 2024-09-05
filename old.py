@@ -79,7 +79,7 @@ def send_message(phone_number, patient_name, date, appointment_uuid):
         message = twilio_client.messages.create(
             from_=twilio_sender_phone_number,
             body=final_string,
-            to=phone_number
+            to='14049155010'
         )
         return {
             "message_sid": message.sid,
