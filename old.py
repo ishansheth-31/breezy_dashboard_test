@@ -160,21 +160,23 @@ if selected_patient_id:
         st.markdown(f"**Assessment Status:** {upload_status}")
 
         # Send follow-up text button
-        if st.button(f"Send Follow-Up Text to {patient_info['first_name']}"):
-            patient_phone_number = patient_info['phones'][0]['phone'] if patient_info.get('phones') else None
-            if patient_phone_number:
-                formatted_phone_number = f"+1{re.sub(r'[^0-9]', '', patient_phone_number)}"
-                result = send_message(
-                    phone_number=formatted_phone_number,
-                    patient_name=patient_info['first_name'],
-                    date=formatted_date,
-                    appointment_uuid=recent_appointment["uuid"]
-                )
-                if result:
-                    # Increment the test message counter in the database
-                    increment_test_message_counter(recent_appointment["_id"])
-                    st.success(f"Follow-up text sent to {patient_info['first_name']}! (Message SID: {result['message_sid']})")
-            else:
-                st.error(f"No valid phone number found for {patient_info['first_name']}.")
+        appointment_status=True
+        if appointment_status == "Upcoming":
+            if st.button(f"Send Follow-Up Text to {patient_info['first_name']}"):
+                patient_phone_number = patient_info['phones'][0]['phone'] if patient_info.get('phones') else None
+                if patient_phone_number:
+                    formatted_phone_number = f"+1{re.sub(r'[^0-9]', '', patient_phone_number)}"
+                    result = send_message(
+                        phone_number=formatted_phone_number,
+                        patient_name=patient_info['first_name'],
+                        date=formatted_date,
+                        appointment_uuid=recent_appointment["uuid"]
+                    )
+                    if result:
+                        # Increment the test message counter in the database
+                        increment_test_message_counter(recent_appointment["_id"])
+                        st.success(f"Follow-up text sent to {patient_info['first_name']}! (Message SID: {result['message_sid']})")
+                else:
+                    st.error(f"No valid phone number found for {patient_info['first_name']}.")
 else:
     st.write("No patient selected. Use the search or click on an upcoming patient.")
