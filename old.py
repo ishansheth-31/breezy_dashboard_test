@@ -48,10 +48,10 @@ def get_appointment_status(appointment_date_str):
     appointment_date_est = utc_appointment_date.astimezone(pytz.timezone('US/Eastern'))
     
     # Get the current time in EST
-    current_time_est = datetime.now()
+    current_time_est = datetime.now(pytz.timezone('US/Eastern'))
     
     # Compare the appointment time to the current time
-    if utc_appointment_date > current_time_est:
+    if appointment_date_est > current_time_est:
         return "Upcoming", "green"
     else:
         return "Past", "red"
