@@ -154,7 +154,7 @@ if selected_patient_id:
 
         # Display appointment details
         st.markdown(f"**Appointment Date:** {formatted_date}")
-        st.markdown(f"**Appointment Stage:** :{status_color}[{appointment_status}]")
+        #st.markdown(f"**Appointment Stage:** :{status_color}[{appointment_status}]")
         st.markdown(f"**Appointment Type:** {recent_appointment['reason']}")
         st.markdown(f"**Messages Sent:** {total_messages_sent}")
         st.markdown(f"**Assessment Status:** {upload_status}")
