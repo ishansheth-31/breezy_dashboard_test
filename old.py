@@ -69,17 +69,17 @@ def string_builder(patient_name, date, link):
             f"Please click the blue highlighted link below to fill out a mandatory 5-minute form before your visit.\n"
             f"{link}")
 
-def send_message(patient_name, date, appointment_uuid):
-    # Fixed phone number for testing
-    test_phone_number = "14049155010"
-    
+def send_message(phone_number, patient_name, date, appointment_uuid):
+    # Create the appointment link
     link = f"https://wonderful-beach-0bf67b61e.5.azurestaticapps.net/{appointment_uuid}"
     final_string = string_builder(patient_name=patient_name, date=date, link=link)
+    
     try:
+        # Send the message using the patient's phone number
         message = twilio_client.messages.create(
             from_=twilio_sender_phone_number,
             body=final_string,
-            to=test_phone_number  # Always send to this number
+            to=phone_number  # Use patient's phone number
         )
         return {
             "message_sid": message.sid,
@@ -89,6 +89,7 @@ def send_message(patient_name, date, appointment_uuid):
     except Exception as e:
         st.error(f"Message couldn't send: {str(e)}")
         return None
+
 
 
 # Title
@@ -171,12 +172,21 @@ if selected_patient_id:
         # Button to send follow-up text (only if appointment is upcoming)
         if appointment_status == "Upcoming":
             if st.button(f"Send Follow-Up Text to {patient_info['first_name']}"):
-                result = send_message(
-                    patient_name=patient_info['first_name'],
-                    date=formatted_date,
-                    appointment_uuid=recent_appointment["uuid"]
-                )
-                if result:
-                    st.success(f"Follow-up text sent to {patient_info['first_name']}! (Message SID: {result['message_sid']})")
+                # Get the patient's phone number from `patient_info`
+                patient_phone_number = patient_info['phones'][0]['phone'] if patient_info.get('phones') else None
+                
+                if patient_phone_number:
+                    formatted_phone_number = f"+1{re.sub(r'[^0-9]', '', patient_phone_number)}"  # Ensure it's a proper E.164 format
+                    result = send_message(
+                        phone_number=formatted_phone_number,  # Send to patient's phone number
+                        patient_name=patient_info['first_name'],
+                        date=formatted_date,
+                        appointment_uuid=recent_appointment["uuid"]
+                    )
+                    if result:
+                        st.success(f"Follow-up text sent to {patient_info['first_name']}! (Message SID: {result['message_sid']})")
+                else:
+                    st.error(f"No valid phone number found for {patient_info['first_name']}.")
+
 else:
     st.write("No patient selected. Use the search or click on an upcoming patient.")
