@@ -131,20 +131,13 @@ for appointment in upcoming_appointments:
     patient = patients_collection.find_one({"id": patient_id}, {"first_name": 1, "last_name": 1, "_id": 0})
     patient_name = f"{patient['first_name']} {patient['last_name']}"
     formatted_date = format_date(appointment['scheduled_date'])
-    
-    # Button for each upcoming patient
-    if st.sidebar.button(f"{patient_name} - {formatted_date}", key=patient_id):
+    if st.sidebar.button(f"{patient_name} - {formatted_date}"):
         # Update selected patient ID in session state when patient is clicked from upcoming list
-        st.session_state.selected_patient_id = patient_id  # Ensure session state is updated
-        # Fetch the selected patient's recent appointment
-        st.session_state.recent_appointment = appointment
+        st.session_state.selected_patient_id = patient_id
 
-# Fetch and display patient details if one is selected
+# If a patient is selected, fetch and display their detailed information
 if st.session_state.selected_patient_id:
-    # Fetch patient information based on session state
     patient_info = patients_collection.find_one({"id": st.session_state.selected_patient_id}, {"first_name": 1, "last_name": 1, "phones": 1, "_id": 0})
-    
-    # Display patient phone information
     if patient_info.get('phones') and len(patient_info['phones']) > 0:
         formatted_phone = format_phone_number(patient_info['phones'][0]['phone'])
         phone_link = f"tel:{formatted_phone.replace('-', '')}"
@@ -154,13 +147,12 @@ if st.session_state.selected_patient_id:
 
     st.header(f"Details for {patient_info['first_name']} {patient_info['last_name']}")
 
-    # Use the recent appointment from session state if available
-    recent_appointment = st.session_state.get('recent_appointment')
-    
+    # Fetch their most recent appointment
+    recent_appointment = appointments_collection.find_one({"patient": st.session_state.selected_patient_id}, sort=[("scheduled_date", pymongo.DESCENDING)])
     if recent_appointment:
         formatted_date = format_date(recent_appointment['scheduled_date'])
         appointment_status, status_color = get_appointment_status(recent_appointment['scheduled_date'])
-
+        
         # Get the counters and total messages sent
         original_counter = recent_appointment.get("counter", 5)
         test_message_counter = recent_appointment.get("test_message_counter", 0)
@@ -191,5 +183,5 @@ if st.session_state.selected_patient_id:
                     st.success(f"Follow-up text sent to {patient_info['first_name']}! (Message SID: {result['message_sid']})")
             else:
                 st.error(f"No valid phone number found for {patient_info['first_name']}.")
-    else:
-        st.write("No recent appointment found for this patient.")
+else:
+    st.write("No patient selected. Use the search or click on an upcoming patient.")
