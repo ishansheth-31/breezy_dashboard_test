@@ -43,7 +43,7 @@ def format_phone_number(phone):
 def get_appointment_status(appointment_date_str):
     utc_appointment_date = datetime.fromisoformat(appointment_date_str.replace("Z", "+00:00"))
     appointment_date_est = utc_appointment_date.astimezone(est)
-    current_time_est = datetime.now()
+    current_time_est = datetime.now(est)
     if appointment_date_est > current_time_est:
         return "Upcoming", "green"
     else:
