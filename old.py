@@ -71,7 +71,7 @@ def string_builder(patient_name, date, link):
 
 def send_message(patient_name, date, appointment_uuid):
     # Fixed phone number for testing
-    test_phone_number = "+14049155010"
+    test_phone_number = "14049155010"
     
     link = f"https://wonderful-beach-0bf67b61e.5.azurestaticapps.net/{appointment_uuid}"
     final_string = string_builder(patient_name=patient_name, date=date, link=link)
