@@ -39,22 +39,22 @@ def format_phone_number(phone):
     phone_digits = re.sub(r'\D', '', phone)  # Remove non-numeric characters
     return f"{phone_digits[:3]}-{phone_digits[3:6]}-{phone_digits[6:]}"
 
-# Helper function to determine if an appointment is upcoming or past
 def get_appointment_status(appointment_date_str):
-    # Parse the appointment date from ISO format (in UTC, indicated by +00:00)
-    utc_appointment_date = datetime.fromisoformat(appointment_date_str)
+    # Parse the appointment date from ISO format (assumed to be in EST with -04:00)
+    est_appointment_date = datetime.fromisoformat(appointment_date_str)
     
-    # Convert the UTC appointment time to EST
-    est_appointment_date = utc_appointment_date.astimezone(pytz.timezone('US/Eastern'))
+    # Add 4 hours to the appointment time
+    new_est_appointment_date = est_appointment_date + timedelta(hours=4)
     
     # Get the current time in EST
     current_time_est = datetime.now(pytz.timezone('US/Eastern'))
     
-    st.write("Appointment Date (EST):", est_appointment_date)
+    st.write("Original Appointment Date (EST):", est_appointment_date)
+    st.write("Updated Appointment Date (+4 hours):", new_est_appointment_date)
     st.write("Current Time (EST):", current_time_est)
     
-    # Compare the appointment time to the current time
-    if est_appointment_date > current_time_est:
+    # Compare the updated appointment time to the current time
+    if new_est_appointment_date > current_time_est:
         return "Upcoming", "green"
     else:
         return "Past", "red"
