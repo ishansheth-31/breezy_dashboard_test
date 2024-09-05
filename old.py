@@ -138,9 +138,9 @@ if selected_patient_id:
         appointment_status, status_color = get_appointment_status(recent_appointment['scheduled_date'])
         
         # Get the counters and total messages sent
-        original_counter = recent_appointment.get("counter", 0)
+        original_counter = recent_appointment.get("counter", 5)
         test_message_counter = recent_appointment.get("test_message_counter", 0)
-        total_messages_sent = original_counter + test_message_counter
+        total_messages_sent = 6 - original_counter + test_message_counter
 
         upload_status = get_upload_status(recent_appointment.get("uuid", ""))
 
