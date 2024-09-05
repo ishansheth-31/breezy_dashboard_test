@@ -46,9 +46,10 @@ def get_appointment_status(appointment_date_str):
     
     # Convert the appointment time to EST
     appointment_date_est = utc_appointment_date.astimezone(pytz.timezone('US/Eastern'))
-    
+    st.write(appointment_date_est)
     # Get the current time in EST
     current_time_est = datetime.now(pytz.timezone('US/Eastern'))
+    st.write(current_time_est)
     
     # Compare the appointment time to the current time
     if appointment_date_est > current_time_est:
