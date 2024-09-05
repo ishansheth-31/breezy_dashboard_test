@@ -51,10 +51,9 @@ def get_appointment_status(appointment_date_str):
     
     # Compare the updated appointment time to the current time
     if new_est_appointment_date > current_time_est:
-        return "Upcoming", "green"
+        return "Upcoming", "green", format_date(appointment_date_str)
     else:
-        return "Past", "red"
-
+        return "Past", "red", None
 
 # Helper function to get upload status from reports
 def get_upload_status(patient_uuid):
@@ -106,25 +105,24 @@ if st.sidebar.button("🏠 Home"):
 # Sidebar - Searchable dropdown for patients
 st.sidebar.title("Search Patient")
 all_patients = list(patients_collection.find({}, {"first_name": 1, "last_name": 1, "id": 1, "_id": 0}))
-patient_options = [f"{patient['first_name']} {patient['last_name']}" for patient in all_patients]
-patient_data = {f"{patient['first_name']} {patient['last_name']}": patient['id'] for patient in all_patients}
+
+# Create a list of patient options with their upcoming/past status and appointment time
+patient_options = []
+patient_data = {}
+
+for patient in all_patients:
+    appointments = appointments_collection.find({"patient": patient['id']}).sort("scheduled_date", pymongo.ASCENDING)
+    for appointment in appointments:
+        status, _, appointment_time = get_appointment_status(appointment["scheduled_date"])
+        if status == "Upcoming":
+            option_text = f"{patient['first_name']} {patient['last_name']} - {status} - {appointment_time}"
+        else:
+            option_text = f"{patient['first_name']} {patient['last_name']} - {status}"
+        patient_options.append(option_text)
+        patient_data[option_text] = patient['id']
+
 selected_patient_name = st.sidebar.selectbox("Select a Patient", options=patient_options)
 selected_patient_id = patient_data.get(selected_patient_name)
-
-# Fetch 10 most recent upcoming appointments after the current time (EST)
-upcoming_appointments = appointments_collection.find({
-    "scheduled_date": {"$gt": current_time.isoformat()},
-}).sort("scheduled_date", pymongo.ASCENDING).limit(10)
-
-# Sidebar - List of Upcoming Patients
-st.sidebar.title("Upcoming Patients")
-for appointment in upcoming_appointments:
-    patient_id = appointment["patient"]
-    patient = patients_collection.find_one({"id": patient_id}, {"first_name": 1, "last_name": 1, "_id": 0})
-    patient_name = f"{patient['first_name']} {patient['last_name']}"
-    formatted_date = format_date(appointment['scheduled_date'])
-    if st.sidebar.button(f"{patient_name} - {formatted_date}"):
-        selected_patient_id = patient_id
 
 # If a patient is selected, fetch and display their detailed information
 if selected_patient_id:
