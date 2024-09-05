@@ -41,21 +41,13 @@ def format_phone_number(phone):
 
 # Helper function to determine if an appointment is upcoming or past
 def get_appointment_status(appointment_date_str):
-    # Parse the appointment date from ISO format and assume it's in UTC
     utc_appointment_date = datetime.fromisoformat(appointment_date_str.replace("Z", "+00:00"))
-    
-    # Convert the appointment time to EST
-    appointment_date_est = utc_appointment_date.astimezone(pytz.timezone('US/Eastern'))
-    
-    # Get the current time in EST
-    current_time_est = datetime.now(pytz.timezone('US/Eastern'))
-    
-    # Compare the appointment time to the current time
+    appointment_date_est = utc_appointment_date
+    current_time_est = datetime.now()
     if appointment_date_est > current_time_est:
         return "Upcoming", "green"
     else:
         return "Past", "red"
-
 
 # Helper function to get upload status from reports
 def get_upload_status(patient_uuid):
