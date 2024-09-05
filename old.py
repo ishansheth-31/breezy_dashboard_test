@@ -41,29 +41,20 @@ def format_phone_number(phone):
 
 # Helper function to determine if an appointment is upcoming or past
 def get_appointment_status(appointment_date_str):
-    try:
-        # Parse the appointment date from ISO format, assuming it's in UTC (Z for UTC)
-        utc_appointment_date = datetime.fromisoformat(appointment_date_str.replace("Z", "+00:00"))
-
-        # Convert the appointment time to EST
-        appointment_date_est = utc_appointment_date.astimezone(pytz.timezone('US/Eastern'))
-
-        # Get the current time in EST
-        current_time_est = datetime.now(pytz.timezone('US/Eastern'))
-
-        # Debugging prints to check values
-        st.write(f"Appointment Date (EST): {appointment_date_est}")
-        st.write(f"Current Time (EST): {current_time_est}")
-
-        # Compare the appointment time to the current time
-        if appointment_date_est > current_time_est:
-            return "Upcoming", "green"
-        else:
-            return "Past", "red"
-    except Exception as e:
-        st.error(f"Error in getting appointment status: {str(e)}")
-        return "Error", "gray"
-
+    # Parse the appointment date from ISO format and assume it's in UTC
+    utc_appointment_date = datetime.fromisoformat(appointment_date_str.replace("Z", "+00:00"))
+    
+    # Convert the appointment time to EST
+    appointment_date_est = utc_appointment_date.astimezone(pytz.timezone('US/Eastern'))
+    
+    # Get the current time in EST
+    current_time_est = datetime.now(pytz.timezone('US/Eastern'))
+    
+    # Compare the appointment time to the current time
+    if appointment_date_est > current_time_est:
+        return "Upcoming", "green"
+    else:
+        return "Past", "red"
 
 
 # Helper function to get upload status from reports
