@@ -104,7 +104,7 @@ if st.sidebar.button("🏠 Home"):
 
 # Sidebar - Searchable dropdown for patients
 st.sidebar.title("Search Patient")
-all_patients = list(patients_collection.find({}, {"first_name": 1, "last_name": 1, "id": 1, "_id": 0}))
+all_patients = list(patients_collection.find({}, {"first_name": 1, "last_name": 1}))
 
 # Create a list of patient options with their upcoming/past status and appointment time
 patient_options = []
