@@ -1,6 +1,6 @@
 import streamlit as st
 import pymongo
-from datetime import datetime, timedelta  # Ensure timedelta is imported
+from datetime import datetime, timedelta
 import pytz
 import re
 from twilio.rest import Client
@@ -118,15 +118,36 @@ for patient in all_patients:
             option_text = f"{patient['first_name']} {patient['last_name']} - {status} - {appointment_time}"
         else:
             option_text = f"{patient['first_name']} {patient['last_name']} - {status}"
+        
+        # Store patient and appointment details
         patient_options.append(option_text)
-        patient_data[option_text] = patient['id']
+        patient_data.append({
+            "name": f"{patient['first_name']} {patient['last_name']}",
+            "id": patient['id'],
+            "status": status,
+            "appointment_time": appointment_time,
+            "raw_date": appointment["scheduled_date"]
+        })
 
-selected_patient_name = st.sidebar.selectbox("Select a Patient", options=patient_options)
-selected_patient_id = patient_data.get(selected_patient_name)
+# Sort by upcoming appointment date (recent dates at the top)
+patient_data = sorted(patient_data, key=lambda x: x["raw_date"], reverse=True)
+
+# Display patients in the sidebar, sorted by recent appointment date
+sorted_patient_options = [f"{patient['name']} - {patient['status']} - {patient['appointment_time']}" for patient in patient_data]
+selected_patient_name = st.sidebar.selectbox("Select a Patient", options=sorted_patient_options)
+selected_patient = next((p for p in patient_data if f"{p['name']} - {p['status']} - {p['appointment_time']}" == selected_patient_name), None)
+
+# Display static cards for upcoming patients
+st.subheader("Upcoming Patients")
+for patient in patient_data:
+    if patient["status"] == "Upcoming":
+        st.markdown(f"**Patient Name:** {patient['name']}")
+        st.markdown(f"**Appointment Time:** {patient['appointment_time']}")
+        st.markdown("---")
 
 # If a patient is selected, fetch and display their detailed information
-if selected_patient_id:
-    patient_info = patients_collection.find_one({"id": selected_patient_id}, {"first_name": 1, "last_name": 1, "phones": 1, "_id": 0})
+if selected_patient:
+    patient_info = patients_collection.find_one({"id": selected_patient["id"]}, {"first_name": 1, "last_name": 1, "phones": 1, "_id": 0})
     if patient_info.get('phones') and len(patient_info['phones']) > 0:
         formatted_phone = format_phone_number(patient_info['phones'][0]['phone'])
         phone_link = f"tel:{formatted_phone.replace('-', '')}"
@@ -137,7 +158,7 @@ if selected_patient_id:
     st.header(f"Details for {patient_info['first_name']} {patient_info['last_name']}")
 
     # Fetch their most recent appointment
-    recent_appointment = appointments_collection.find_one({"patient": selected_patient_id}, sort=[("scheduled_date", pymongo.DESCENDING)])
+    recent_appointment = appointments_collection.find_one({"patient": selected_patient["id"]}, sort=[("scheduled_date", pymongo.DESCENDING)])
     if recent_appointment:
         formatted_date = format_date(recent_appointment['scheduled_date'])
         appointment_status, status_color, date = get_appointment_status(recent_appointment['scheduled_date'])
