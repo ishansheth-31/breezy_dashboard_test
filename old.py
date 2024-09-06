@@ -111,6 +111,12 @@ patient_options = []
 patient_data = {}
 
 for patient in all_patients:
+
+    first_name = patient.get('first_name')
+    last_name = patient.get('last_name')
+
+    if not first_name or not last_name or (first_name == 'None' and last_name == 'None'):
+        continue
     appointments = appointments_collection.find({"patient": patient['id']}).sort("scheduled_date", pymongo.ASCENDING)
     for appointment in appointments:
         status, _, appointment_time = get_appointment_status(appointment["scheduled_date"])
@@ -133,6 +139,12 @@ upcoming_appointments = appointments_collection.find({
 for appointment in upcoming_appointments:
     patient_id = appointment["patient"]
     patient = patients_collection.find_one({"id": patient_id}, {"first_name": 1, "last_name": 1, "_id": 0})
+
+    first_name = patient.get('first_name')
+    last_name = patient.get('last_name')
+    if not first_name or not last_name or (first_name == 'None' and last_name == 'None'):
+        continue
+
     patient_name = f"{patient['first_name']} {patient['last_name']}"
     formatted_date = format_date(appointment['scheduled_date'])
     appointment_type = appointment["reason"]
